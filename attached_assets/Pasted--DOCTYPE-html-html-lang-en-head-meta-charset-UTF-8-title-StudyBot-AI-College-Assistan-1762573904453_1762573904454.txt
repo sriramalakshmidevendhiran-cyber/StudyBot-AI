@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StudyBot - AI College Assistant</title>
+<style>
+body{font-family:sans-serif;background:#eef;text-align:center;padding:20px;}
+input,button{padding:10px;margin:5px;border-radius:10px;border:none;}
+button{background:#0066ff;color:white;cursor:pointer;}
+pre{background:white;padding:10px;border-radius:10px;max-width:600px;margin:auto;text-align:left;}
+</style>
+</head>
+<body>
+  <h1>📘 StudyBot – Your AI College Assistant</h1>
+  <input id="topic" placeholder="Enter topic (e.g., Deadlocks)">
+  <button onclick="askTutor()">Explain</button>
+  <button onclick="getQuiz()">Quiz</button>
+  <button onclick="getPlan()">Plan</button>
+  <button onclick="startVoice()">🎙 Speak</button>
+  <pre id="output">Your AI tutor will respond here...</pre>
+
+<script>
+async function askTutor(){
+  const topic=document.getElementById("topic").value;
+  const res=await fetch("/tutor",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({topic})});
+  const data=await res.json();
+  document.getElementById("output").textContent=data.result;
+  speak(data.result);
+}
+async function getQuiz(){
+  const topic=document.getElementById("topic").value;
+  const res=await fetch("/quiz",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({topic})});
+  const data=await res.json();
+  document.getElementById("output").textContent=data.result;
+  speak("Here is your quiz on "+topic);
+}
+async function getPlan(){
+  const topic=document.getElementById("topic").value;
+  const res=await fetch("/plan",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({subject:topic,days:5})});
+  const data=await res.json();
+  document.getElementById("output").textContent=data.result;
+  speak("Here is your five-day plan for "+topic);
+}
+function speak(text){const msg=new SpeechSynthesisUtterance(text);speechSynthesis.speak(msg);}
+
+// 🎙 Voice input
+window.SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+const recog=new SpeechRecognition();
+recog.lang="en-US";
+recog.onresult=e=>{
+ document.getElementById("topic").value=e.results[0][0].transcript;
+};
+function startVoice(){recog.start();}
+</script>
+</body>
+</html>

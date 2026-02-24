@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBot - AI Learning Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            min-height: 100vh;
+            color: #2C3E50;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: #2C3E50;
+            margin-bottom: 30px;
+            background: #87CEEB;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #5DADE2;
+            box-shadow: 0 5px 15px rgba(135, 206, 235, 0.3);
+        }
+        
+        .card {
+            background: #87CEEB;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(135, 206, 235, 0.3);
+            margin-bottom: 20px;
+            border: 2px solid #5DADE2;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #5DADE2 0%, #87CEEB 100%);
+            color: white;
+            border: 2px solid #5DADE2;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(93, 173, 226, 0.4);
+            background: linear-gradient(135deg, #87CEEB 0%, #5DADE2 100%);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #5DADE2;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #5DADE2;
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.1);
+        }
+        
+        .response {
+            background: white;
+            border-left: 4px solid #5DADE2;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            border: 1px solid #87CEEB;
+            color: #2C3E50;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #5DADE2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .voice-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #5DADE2;
+            color: white;
+            border: 2px solid #87CEEB;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(93, 173, 226, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .voice-toggle:hover {
+            transform: scale(1.1);
+            background: #87CEEB;
+            border-color: #87CEEB;
+        }
+        
+        .voice-toggle.muted {
+            background: #B0C4DE;
+            border-color: #87CEEB;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #5DADE2;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            color: white;
+            border-bottom-color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .error {
+            color: #dc3545;
+            background: #FFE8E8;
+            border: 1px solid #F44336;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .success {
+            color: #155724;
+            background: #E8F5E8;
+            border: 1px solid #4CAF50;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        /* Login Page Styles */
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(135, 206, 235, 0.3);
+            margin: 0 auto;
+            max-width: 400px;
+            text-align: center;
+            border: 2px solid #87CEEB;
+        }
+        
+        .logo {
+            font-size: 48px;
+            color: #87CEEB;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            color: #2C3E50;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #87CEEB;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2C3E50;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #87CEEB;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #5DADE2;
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.1);
+        }
+        
+        .divider {
+            margin: 30px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #87CEEB;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            color: #87CEEB;
+            font-size: 14px;
+        }
+        
+        .guest-btn {
+            background: white;
+            color: #2C3E50;
+            border: 2px solid #87CEEB;
+        }
+        
+        .guest-btn:hover {
+            background: #F0F8FF;
+            border-color: #5DADE2;
+        }
+        
+        .features {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #87CEEB;
+        }
+        
+        .features h3 {
+            color: #2C3E50;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .feature-tag {
+            background: #F0F8FF;
+            color: #5DADE2;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #87CEEB;
+        }
+    </style>
+</head>
+<body>
+    <!-- Content will be dynamically loaded here -->
+    
+    <script>
+        // Global variables
+        let voiceEnabled = true;
+        const API_BASE = window.location.origin;
+        let currentUser = null;
+        let quizScores = [];
+        let currentQuiz = null;
+        let isLoggedIn = false;
+        
+        // Check login status on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+        });
+        
+        // Check if user is already logged in
+        function checkLoginStatus() {
+            const userData = localStorage.getItem('studybot_user');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                isLoggedIn = true;
+                showDashboard();
+            } else {
+                showLoginForm();
+            }
+        }
+        
+        // Show login form
+        function showLoginForm() {
+            document.body.innerHTML = `
+                <div class="login-container">
+                    <div class="logo">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    
+                    <h1 class="title">StudyBot</h1>
+                    <p class="subtitle">Your AI-Powered Learning Assistant</p>
+                    
+                    <div id="login-message"></div>
+                    
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Username or Email</label>
+                            <input type="text" id="username" name="username" required placeholder="Enter your username or email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required placeholder="Enter your password">
+                        </div>
+                        
+                        <button type="submit" class="btn" id="loginBtn">
+                            <span id="loginBtnText">Sign In</span>
+                        </button>
+                    </form>
+                    
+                    <div class="divider">
+                        <span>OR</span>
+                    </div>
+                    
+                    <button class="btn guest-btn" onclick="continueAsGuest()">
+                        Continue as Guest
+                    </button>
+                    
+                    <div class="features">
+                        <h3>What you'll get:</h3>
+                        <div class="feature-list">
+                            <span class="feature-tag"><i class="fas fa-book"></i> AI Tutor</span>
+                            <span class="feature-tag"><i class="fas fa-question-circle"></i> Quiz Generator</span>
+                            <span class="feature-tag"><i class="fas fa-calendar-alt"></i> Study Plans</span>
+                            <span class="feature-tag"><i class="fas fa-redo"></i> Revision System</span>
+                            <span class="feature-tag"><i class="fas fa-chart-line"></i> Progress Tracking</span>
+                            <span class="feature-tag"><i class="fas fa-volume-up"></i> Voice Learning</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add login form event listener
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        }
+        
+        // Handle login form submission
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginBtnText = document.getElementById('loginBtnText');
+            const messageDiv = document.getElementById('login-message');
+            
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtnText.innerHTML = '<span class="loading"></span>Signing in...';
+            messageDiv.innerHTML = '';
+            
+            try {
+                // Simulate login (in real app, this would be an API call)
+                await simulateLogin(username, password);
+                
+                // Store user data
+                const userData = {
+                    username: username,
+                    loginTime: new Date().toISOString(),
+                    isLoggedIn: true
+                };
+                
+                localStorage.setItem('studybot_user', JSON.stringify(userData));
+                currentUser = userData;
+                isLoggedIn = true;
+                
+                // Show success message
+                showMessage('Login successful! Loading dashboard...', 'success');
+                
+                // Show dashboard after a short delay
+                setTimeout(() => {
+                    showDashboard();
+                }, 1000);
+                
+            } catch (error) {
+                showMessage('Invalid username or password. Please try again.', 'error');
+            } finally {
+                // Reset button state
+                loginBtn.disabled = false;
+                loginBtnText.innerHTML = 'Sign In';
+            }
+        }
+        
+        // Continue as guest
+        function continueAsGuest() {
+            const guestData = {
+                username: 'Guest',
+                loginTime: new Date().toISOString(),
+                isLoggedIn: false,
+                isGuest: true
+            };
+            
+            localStorage.setItem('studybot_user', JSON.stringify(guestData));
+            currentUser = guestData;
+            isLoggedIn = true;
+            
+            showDashboard();
+        }
+        
+        // Simulate login function
+        function simulateLogin(username, password) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    // Simple validation (in real app, this would be server-side)
+                    if (username && password.length >= 4) {
+                        resolve();
+                    } else {
+                        reject(new Error('Invalid credentials'));
+                    }
+                }, 1000);
+            });
+        }
+        
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('login-message');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+        
+        // Show dashboard
+        function showDashboard() {
+            document.body.innerHTML = `
+                <div class="container">
+                    <div class="header">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h1><i class="fas fa-graduation-cap"></i> StudyBot</h1>
+                                <p>Your AI-Powered Learning Assistant</p>
+                            </div>
+                            <div id="user-info" style="text-align: right;">
+                                <!-- User info will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="tabs">
+                            <button class="tab active" onclick="switchTab('tutor')">
+                                <i class="fas fa-book"></i> Tutor
+                            </button>
+                            <button class="tab" onclick="switchTab('quiz')">
+                                <i class="fas fa-question-circle"></i> Quiz
+                            </button>
+                            <button class="tab" onclick="switchTab('scores')">
+                                <i class="fas fa-chart-line"></i> Scores
+                            </button>
+                            <button class="tab" onclick="switchTab('plan')">
+                                <i class="fas fa-calendar-alt"></i> Study Plan
+                            </button>
+                            <button class="tab" onclick="switchTab('revision')">
+                                <i class="fas fa-redo"></i> Revision
+                            </button>
+                        </div>
+                        
+                        <!-- Tutor Tab -->
+                        <div id="tutor-tab" class="tab-content active">
+                            <h2><i class="fas fa-book"></i> AI Tutor</h2>
+                            <p>Get detailed explanations for any topic with mood-adapted learning.</p>
+                            
+                            <div class="input-group">
+                                <label for="tutor-topic">Topic:</label>
+                                <input type="text" id="tutor-topic" placeholder="Enter a topic (e.g., biology, chemistry, physics)">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="tutor-mood">Your Mood:</label>
+                                <select id="tutor-mood">
+                                    <option value="">Select your mood</option>
+                                    <option value="motivated">🔥 Motivated</option>
+                                    <option value="tired">😴 Tired</option>
+                                    <option value="bored">😒 Bored</option>
+                                    <option value="confused">😕 Confused</option>
+                                    <option value="stressed">😰 Stressed</option>
+                                    <option value="confident">😎 Confident</option>
+                                </select>
+                            </div>
+                            
+                            <button class="btn" onclick="getTutorExplanation()">
+                                <i class="fas fa-magic"></i> Explain This Topic
+                            </button>
+                            
+                            <div id="tutor-response"></div>
+                        </div>
+                        
+                        <!-- Quiz Tab -->
+                        <div id="quiz-tab" class="tab-content">
+                            <h2><i class="fas fa-question-circle"></i> Quiz Generator</h2>
+                            <p>Generate interactive quiz questions to test your knowledge.</p>
+                            
+                            <div class="input-group">
+                                <label for="quiz-topic">Topic:</label>
+                                <input type="text" id="quiz-topic" placeholder="Enter a topic for quiz (e.g., biology, chemistry)">
+                            </div>
+                            
+                            <button class="btn" onclick="generateQuiz()">
+                                <i class="fas fa-clipboard-list"></i> Generate Quiz
+                            </button>
+                            
+                            <button class="btn" onclick="selectOptionA()" style="background: linear-gradient(135deg, #5DADE2 0%, #87CEEB 100%);" id="selectA-btn" style="display: none;">
+                                <i class="fas fa-check"></i> Select Option A
+                            </button>
+                            
+                            <div id="quiz-response"></div>
+                        </div>
+                        
+                        <!-- Scores Tab -->
+                        <div id="scores-tab" class="tab-content">
+                            <h2><i class="fas fa-chart-line"></i> Quiz Scores</h2>
+                            <p>Track your quiz performance and progress over time.</p>
+                            
+                            <button class="btn" onclick="refreshScores()">
+                                <i class="fas fa-sync"></i> Refresh Scores
+                            </button>
+                            
+                            <div id="scores-response"></div>
+                        </div>
+                        
+                        <!-- Study Plan Tab -->
+                        <div id="plan-tab" class="tab-content">
+                            <h2><i class="fas fa-calendar-alt"></i> Study Plan</h2>
+                            <p>Create a personalized study plan for any subject.</p>
+                            
+                            <div class="input-group">
+                                <label for="plan-subject">Subject:</label>
+                                <input type="text" id="plan-subject" placeholder="Enter a subject (e.g., mathematics, programming)">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="plan-days">Number of Days:</label>
+                                <select id="plan-days">
+                                    <option value="3">3 Days</option>
+                                    <option value="5" selected>5 Days</option>
+                                    <option value="7">7 Days</option>
+                                    <option value="10">10 Days</option>
+                                </select>
+                            </div>
+                            
+                            <button class="btn" onclick="createStudyPlan()">
+                                <i class="fas fa-calendar-plus"></i> Create Study Plan
+                            </button>
+                            
+                            <div id="plan-response"></div>
+                        </div>
+                        
+                        <!-- Revision Tab -->
+                        <div id="revision-tab" class="tab-content">
+                            <h2><i class="fas fa-redo"></i> Revision System</h2>
+                            <p>Track your revision schedule and upcoming topics.</p>
+                            
+                            <button class="btn" onclick="getRevisionData()">
+                                <i class="fas fa-sync"></i> Refresh Revision Data
+                            </button>
+                            
+                            <div id="revision-response"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="voice-toggle" id="voice-toggle" onclick="toggleVoice()">
+                    <i class="fas fa-volume-up" id="voice-icon"></i>
+                </button>
+            `;
+            
+            // Initialize dashboard
+            displayUserInfo();
+            loadQuizScores();
+            initializeVoiceToggle();
+            showToast('StudyBot is ready! 🎓', 'success');
+        }
+        
+        // Voice toggle functionality
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            const voiceToggle = document.getElementById('voice-toggle');
+            const voiceIcon = document.getElementById('voice-icon');
+            
+            if (voiceEnabled) {
+                voiceToggle.classList.remove('muted');
+                voiceIcon.className = 'fas fa-volume-up';
+                showToast('Voice enabled', 'success');
+            } else {
+                voiceToggle.classList.add('muted');
+                voiceIcon.className = 'fas fa-volume-mute';
+                showToast('Voice disabled', 'success');
+            }
+            
+            // Save preference
+            localStorage.setItem('voiceEnabled', voiceEnabled);
+        }
+        
+        // Initialize voice toggle after dashboard is loaded
+        function initializeVoiceToggle() {
+            const voiceToggle = document.getElementById('voice-toggle');
+            if (voiceToggle) {
+                voiceToggle.onclick = toggleVoice;
+                loadVoicePreference();
+            }
+        }
+        
+        // Load voice preference
+        function loadVoicePreference() {
+            const saved = localStorage.getItem('voiceEnabled');
+            if (saved !== null) {
+                voiceEnabled = saved === 'true';
+                const voiceToggle = document.getElementById('voice-toggle');
+                const voiceIcon = document.getElementById('voice-icon');
+                
+                if (!voiceEnabled) {
+                    voiceToggle.classList.add('muted');
+                    voiceIcon.className = 'fas fa-volume-mute';
+                }
+            }
+        }
+        
+        // Text to speech
+        function speakText(text) {
+            if (!voiceEnabled || !('speechSynthesis' in window)) return;
+            
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+        }
+        
+        // API calls
+        async function getTutorExplanation() {
+            const topic = document.getElementById('tutor-topic').value.trim();
+            const mood = document.getElementById('tutor-mood').value;
+            const responseDiv = document.getElementById('tutor-response');
+            
+            if (!topic) {
+                showToast('Please enter a topic', 'error');
+                return;
+            }
+            
+            responseDiv.innerHTML = '<div class="loading"></div> Getting explanation...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/tutor`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ topic, mood })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.innerHTML = `<div class="response">${data.result}</div>`;
+                    speakText(data.result);
+                    showToast('Explanation generated successfully!', 'success');
+                } else {
+                    responseDiv.innerHTML = `<div class="error">${data.error}</div>`;
+                    showToast('Error generating explanation', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                responseDiv.innerHTML = '<div class="error">Failed to connect to server. Please try again.</div>';
+                showToast('Connection error', 'error');
+            }
+        }
+        
+        async function generateQuiz() {
+            const topic = document.getElementById('quiz-topic').value.trim();
+            const responseDiv = document.getElementById('quiz-response');
+            
+            if (!topic) {
+                showToast('Please enter a topic', 'error');
+                return;
+            }
+            
+            responseDiv.innerHTML = '<div class="loading"></div> Generating quiz...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/quiz`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ topic })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.innerHTML = `<div class="response">${data.result}</div>`;
+                    speakText(`Here is your quiz on ${topic}`);
+                    showToast('Quiz generated successfully!', 'success');
+                } else {
+                    responseDiv.innerHTML = `<div class="error">${data.error}</div>`;
+                    showToast('Error generating quiz', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                responseDiv.innerHTML = '<div class="error">Failed to connect to server. Please try again.</div>';
+                showToast('Connection error', 'error');
+            }
+        }
+        
+        async function createStudyPlan() {
+            const subject = document.getElementById('plan-subject').value.trim();
+            const days = parseInt(document.getElementById('plan-days').value);
+            const responseDiv = document.getElementById('plan-response');
+            
+            if (!subject) {
+                showToast('Please enter a subject', 'error');
+                return;
+            }
+            
+            responseDiv.innerHTML = '<div class="loading"></div> Creating study plan...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/plan`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ subject, days })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    let planHTML = `<div class="response"><h3>Study Plan for ${subject} (${days} days)</h3>`;
+                    data.plan.forEach((day, index) => {
+                        planHTML += `<div style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h4>${day.day}</h4>
+                            <ul>
+                                ${day.topics.map(topic => `<li>${topic}</li>`).join('')}
+                            </ul>
+                        </div>`;
+                    });
+                    planHTML += '</div>';
+                    
+                    responseDiv.innerHTML = planHTML;
+                    speakText(`Here is your ${days}-day study plan for ${subject}`);
+                    showToast('Study plan created successfully!', 'success');
+                } else {
+                    responseDiv.innerHTML = `<div class="error">${data.error}</div>`;
+                    showToast('Error creating study plan', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                responseDiv.innerHTML = '<div class="error">Failed to connect to server. Please try again.</div>';
+                showToast('Connection error', 'error');
+            }
+        }
+        
+        async function getRevisionData() {
+            const responseDiv = document.getElementById('revision-response');
+            
+            responseDiv.innerHTML = '<div class="loading"></div> Loading revision data...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/revision`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.innerHTML = `
+                        <div class="response">
+                            <h3>Revision Schedule</h3>
+                            <div style="margin: 15px 0;">
+                                <h4>Upcoming Revisions:</h4>
+                                ${data.upcoming.length > 0 ? 
+                                    data.upcoming.map(item => `<p>• ${item.topic} - ${item.date}</p>`).join('') :
+                                    '<p>No upcoming revisions scheduled.</p>'
+                                }
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <h4>Overdue Revisions:</h4>
+                                ${data.overdue.length > 0 ? 
+                                    data.overdue.map(item => `<p>• ${item.topic} - ${item.date} (Overdue)</p>`).join('') :
+                                    '<p>No overdue revisions.</p>'
+                                }
+                            </div>
+                        </div>
+                    `;
+                    showToast('Revision data loaded successfully!', 'success');
+                } else {
+                    responseDiv.innerHTML = `<div class="error">${data.error}</div>`;
+                    showToast('Error loading revision data', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                responseDiv.innerHTML = '<div class="error">Failed to connect to server. Please try again.</div>';
+                showToast('Connection error', 'error');
+            }
+        }
+        
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = type;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            if (type === 'success') {
+                toast.style.background = '#28a745';
+            } else {
+                toast.style.background = '#dc3545';
+            }
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVoicePreference();
+            loadUserData();
+            loadQuizScores();
+            showToast('StudyBot is ready! 🎓', 'success');
+        });
+        
+        // Load user data
+        function loadUserData() {
+            const userData = localStorage.getItem('studybot_user');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                displayUserInfo();
+            } else {
+                // Redirect to login if no user data
+                window.location.href = '/login.html';
+            }
+        }
+        
+        // Display user info
+        function displayUserInfo() {
+            const userInfoDiv = document.getElementById('user-info');
+            if (currentUser) {
+                const loginTime = new Date(currentUser.loginTime).toLocaleString();
+                userInfoDiv.innerHTML = `
+                    <div style="color: white; font-size: 14px;">
+                        <div><i class="fas fa-user"></i> ${currentUser.username}</div>
+                        <div style="font-size: 12px; opacity: 0.8;">Logged in: ${loginTime}</div>
+                        <button onclick="logout()" style="margin-top: 5px; padding: 5px 10px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 5px; cursor: pointer; font-size: 12px;">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('studybot_user');
+            localStorage.removeItem('quiz_scores');
+            window.location.href = '/login.html';
+        }
+        
+        // Load quiz scores
+        function loadQuizScores() {
+            const scores = localStorage.getItem('quiz_scores');
+            if (scores) {
+                quizScores = JSON.parse(scores);
+            }
+        }
+        
+        // Save quiz scores
+        function saveQuizScores() {
+            localStorage.setItem('quiz_scores', JSON.stringify(quizScores));
+        }
+        
+        // Update quiz generation to include marking
+        async function generateQuiz() {
+            const topic = document.getElementById('quiz-topic').value.trim();
+            const responseDiv = document.getElementById('quiz-response');
+            
+            if (!topic) {
+                showToast('Please enter a topic', 'error');
+                return;
+            }
+            
+            responseDiv.innerHTML = '<div class="loading"></div> Generating quiz...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/quiz`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ topic })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentQuiz = {
+                        topic: topic,
+                        questions: parseQuizQuestions(data.result),
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Show the Select Option A button
+                    const selectABtn = document.getElementById('selectA-btn');
+                    if (selectABtn) {
+                        selectABtn.style.display = 'inline-block';
+                    }
+                    
+                    responseDiv.innerHTML = `
+                        <div class="response">
+                            <h3>Quiz on ${topic}</h3>
+                            <div id="quiz-questions">
+                                ${renderQuizQuestions(currentQuiz.questions)}
+                            </div>
+                            <button class="btn" onclick="submitQuiz()" style="margin-top: 20px;">
+                                <i class="fas fa-check"></i> Submit Quiz
+                            </button>
+                        </div>
+                    `;
+                    
+                    speakText(`Here is your quiz on ${topic}`);
+                    showToast('Quiz generated successfully!', 'success');
+                } else {
+                    responseDiv.innerHTML = `<div class="error">${data.error}</div>`;
+                    showToast('Error generating quiz', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                responseDiv.innerHTML = '<div class="error">Failed to connect to server. Please try again.</div>';
+                showToast('Connection error', 'error');
+            }
+        }
+        
+        // Parse quiz questions from AI response
+        function parseQuizQuestions(quizText) {
+            const questions = [];
+            const lines = quizText.split('\n');
+            let currentQuestion = null;
+            let questionNumber = 1;
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                // Detect question (more flexible patterns)
+                if (line.match(/^(\d+\.|Question|Q\d+)/i) || line.includes('?')) {
+                    if (currentQuestion) {
+                        questions.push(currentQuestion);
+                    }
+                    currentQuestion = {
+                        number: questionNumber++,
+                        question: line.replace(/^(\d+\.|Question|Q\d+)/i, '').trim(),
+                        options: [],
+                        correctAnswer: null
+                    };
+                }
+                // Detect options (more flexible patterns)
+                else if ((line.match(/^[A-D]\)/i) || line.match(/^[A-D]\./i) || line.match(/^\s*[A-D]\s/)) && currentQuestion) {
+                    let option = line.replace(/^[A-D][).]\s*/i, '').trim();
+                    // Remove bullet points and other formatting
+                    option = option.replace(/^[-•*]\s*/, '').trim();
+                    if (option) {
+                        currentQuestion.options.push(option);
+                    }
+                }
+                // Detect options with numbers
+                else if (line.match(/^\d+\)/) && currentQuestion && currentQuestion.options.length < 4) {
+                    const option = line.replace(/^\d+\)\s*/, '').trim();
+                    if (option) {
+                        currentQuestion.options.push(option);
+                    }
+                }
+                // Detect correct answer (more flexible patterns)
+                else if (line.match(/^(correct|answer|solution)/i) && currentQuestion) {
+                    const match = line.match(/[A-D]/i);
+                    if (match) {
+                        currentQuestion.correctAnswer = match[0].toUpperCase();
+                    }
+                }
+                // Look for answer key section
+                else if (line.match(/answer key/i) || line.match(/solutions/i)) {
+                    // Look ahead for correct answers
+                    for (let j = i + 1; j < lines.length; j++) {
+                        const answerLine = lines[j].trim();
+                        if (answerLine.match(/^\d+\./)) {
+                            const answerMatch = answerLine.match(/[A-D]/i);
+                            if (answerMatch && currentQuestion) {
+                                currentQuestion.correctAnswer = answerMatch[0].toUpperCase();
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (currentQuestion) {
+                questions.push(currentQuestion);
+            }
+            
+            // If parsing failed or no questions found, create a simple quiz
+            if (questions.length === 0) {
+                return createSimpleQuiz();
+            }
+            
+            // Ensure all questions have options and correct answers
+            return questions.map(q => {
+                if (q.options.length === 0) {
+                    q.options = ['Option A', 'Option B', 'Option C', 'Option D'];
+                }
+                if (!q.correctAnswer) {
+                    q.correctAnswer = 'A'; // Default to first option
+                }
+                return q;
+            });
+        }
+        
+        // Create a simple quiz if parsing fails
+        function createSimpleQuiz() {
+            const topic = currentQuiz?.topic || 'general knowledge';
+            return [
+                {
+                    number: 1,
+                    question: `What is the main concept of ${topic}?`,
+                    options: [
+                        `The fundamental principle of ${topic}`,
+                        `A related but different concept`,
+                        `An unrelated topic`,
+                        `None of the above`
+                    ],
+                    correctAnswer: 'A'
+                },
+                {
+                    number: 2,
+                    question: `How is ${topic} applied in real life?`,
+                    options: [
+                        `Through practical applications and examples`,
+                        `Only in theoretical contexts`,
+                        `Never used in real life`,
+                        `Only in academic settings`
+                    ],
+                    correctAnswer: 'A'
+                }
+            ];
+        }
+        
+        // Render quiz questions
+        function renderQuizQuestions(questions) {
+            return questions.map((q, index) => `
+                <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 8px; border: 2px solid #87CEEB; box-shadow: 0 2px 4px rgba(135, 206, 235, 0.2);">
+                    <h4 style="margin-bottom: 10px; color: #2C3E50;">Question ${q.number}: ${q.question}</h4>
+                    <div style="margin: 8px 0;">
+                        ${q.options.map((option, optIndex) => `
+                            <div style="margin: 3px 0;">
+                                <label style="cursor: pointer; display: block; padding: 6px 10px; background: white; border-radius: 5px; border: 1px solid #87CEEB; transition: all 0.3s ease; font-size: 14px;" onmouseover="this.style.background='#F0F8FF'; this.style.borderColor='#5DADE2';" onmouseout="if(!this.querySelector('input').checked) { this.style.background='white'; this.style.borderColor='#87CEEB'; }">
+                                    <input type="radio" name="question_${q.number}" value="${String.fromCharCode(65 + optIndex)}" style="margin-right: 8px; transform: scale(1.1);" onchange="highlightSelectedOption(this)">
+                                    <span style="font-weight: 600; color: #5DADE2; margin-right: 5px;">${String.fromCharCode(65 + optIndex)})</span>
+                                    <span>${option}</span>
+                                </label>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Select option A for all questions
+        function selectOptionA() {
+            const questions = document.querySelectorAll('[id^="question_"]');
+            questions.forEach((questionDiv, index) => {
+                const questionNumber = index + 1;
+                const optionA = document.querySelector(`input[name="question_${questionNumber}"][value="A"]`);
+                if (optionA) {
+                    optionA.checked = true;
+                    highlightSelectedOption(optionA);
+                }
+            });
+            showToast('Option A selected for all questions', 'success');
+        }
+        
+        // Select option A for specific question
+        function selectOptionAForQuestion(questionNumber) {
+            const optionA = document.querySelector(`input[name="question_${questionNumber}"][value="A"]`);
+            if (optionA) {
+                optionA.checked = true;
+                highlightSelectedOption(optionA);
+                showToast(`Option A selected for question ${questionNumber}`, 'success');
+            }
+        }
+        
+        // Highlight selected option
+        function highlightSelectedOption(radio) {
+            // Remove highlight from all options in this question
+            const questionName = radio.name;
+            const allOptions = document.querySelectorAll(`input[name="${questionName}"]`);
+            allOptions.forEach(option => {
+                const label = option.parentElement;
+                if (!option.checked) {
+                    label.style.background = 'white';
+                    label.style.borderColor = '#87CEEB';
+                }
+            });
+            
+            // Add highlight to selected option
+            if (radio.checked) {
+                const selectedLabel = radio.parentElement;
+                selectedLabel.style.background = '#F0F8FF';
+                selectedLabel.style.borderColor = '#5DADE2';
+                selectedLabel.style.boxShadow = '0 2px 6px rgba(93, 173, 226, 0.3)';
+            }
+        }
+        
+        // Submit quiz and calculate score
+        function submitQuiz() {
+            if (!currentQuiz || !currentQuiz.questions) {
+                showToast('No quiz to submit', 'error');
+                return;
+            }
+            
+            let correctCount = 0;
+            const totalQuestions = currentQuiz.questions.length;
+            const results = [];
+            
+            currentQuiz.questions.forEach(question => {
+                const selectedAnswer = document.querySelector(`input[name="question_${question.number}"]:checked`);
+                const isCorrect = selectedAnswer && selectedAnswer.value === question.correctAnswer;
+                
+                if (isCorrect) {
+                    correctCount++;
+                }
+                
+                results.push({
+                    question: question,
+                    selectedAnswer: selectedAnswer ? selectedAnswer.value : null,
+                    correctAnswer: question.correctAnswer,
+                    isCorrect: isCorrect
+                });
+            });
+            
+            const score = Math.round((correctCount / totalQuestions) * 100);
+            const quizResult = {
+                topic: currentQuiz.topic,
+                score: score,
+                correctAnswers: correctCount,
+                totalQuestions: totalQuestions,
+                timestamp: new Date().toISOString(),
+                user: currentUser.username
+            };
+            
+            // Save score
+            quizScores.push(quizResult);
+            saveQuizScores();
+            
+            // Show detailed results
+            const quizQuestionsDiv = document.getElementById('quiz-questions');
+            quizQuestionsDiv.innerHTML = results.map((result, index) => `
+                <div style="margin: 15px 0; padding: 15px; background: ${result.isCorrect ? '#E8F5E8' : '#FFE8E8'}; border-radius: 8px; border-left: 4px solid ${result.isCorrect ? '#4CAF50' : '#F44336'};">
+                    <h4 style="color: #2C3E50; margin-bottom: 10px;">Question ${result.question.number}: ${result.question.question}</h4>
+                    <div style="margin: 8px 0;">
+                        ${result.question.options.map((option, optIndex) => {
+                            const optionLetter = String.fromCharCode(65 + optIndex);
+                            const isSelected = result.selectedAnswer === optionLetter;
+                            const isCorrect = result.correctAnswer === optionLetter;
+                            
+                            let bgColor = 'white';
+                            let borderColor = '#87CEEB';
+                            let icon = '';
+                            
+                            if (isSelected && isCorrect) {
+                                bgColor = '#E8F5E8';
+                                borderColor = '#4CAF50';
+                                icon = '✓';
+                            } else if (isSelected && !isCorrect) {
+                                bgColor = '#FFE8E8';
+                                borderColor = '#F44336';
+                                icon = '✗';
+                            } else if (isCorrect) {
+                                bgColor = '#E8F5E8';
+                                borderColor = '#4CAF50';
+                                icon = '✓';
+                            }
+                            
+                            return `
+                                <div style="margin: 3px 0;">
+                                    <label style="cursor: pointer; display: block; padding: 6px 10px; background: ${bgColor}; border-radius: 5px; border: 1px solid ${borderColor};">
+                                        <input type="radio" name="result_${result.question.number}" value="${optionLetter}" ${isSelected ? 'checked' : ''} disabled style="margin-right: 8px;">
+                                        <span style="font-weight: 600; color: ${isCorrect ? '#4CAF50' : '#5DADE2'}; margin-right: 5px;">${optionLetter})</span>
+                                        <span>${option}</span>
+                                        ${icon ? `<span style="float: right; font-weight: bold; color: ${isCorrect ? '#4CAF50' : '#F44336'};">${icon}</span>` : ''}
+                                    </label>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div style="margin-top: 8px; font-size: 13px;">
+                        ${result.isCorrect ? 
+                            '<span style="color: #4CAF50; font-weight: bold;">✓ Correct!</span>' : 
+                            `<span style="color: #F44336; font-weight: bold;">✗ Incorrect. Correct answer: ${result.correctAnswer}</span>`
+                        }
+                    </div>
+                </div>
+            `).join('') + `
+                <div style="margin: 15px 0; padding: 20px; background: ${score >= 70 ? '#E8F5E8' : '#FFE8E8'}; border-radius: 8px; text-align: center; border: 1px solid ${score >= 70 ? '#4CAF50' : '#F44336'};">
+                    <h3 style="color: #2C3E50;">Quiz Results</h3>
+                    <div style="font-size: 24px; font-weight: bold; margin: 10px 0; color: ${score >= 70 ? '#4CAF50' : '#F44336'};">
+                        Score: ${score}%
+                    </div>
+                    <div style="color: #2C3E50;">You got ${correctCount} out of ${totalQuestions} questions correct.</div>
+                    <div style="margin-top: 10px;">
+                        ${score >= 70 ? '🎉 Great job!' : '💪 Keep practicing!'}
+                    </div>
+                    <button class="btn" onclick="refreshScores()" style="margin-top: 15px; background: linear-gradient(135deg, #87CEEB 0%, #5DADE2 100%);">
+                        <i class="fas fa-chart-line"></i> View Scores
+                    </button>
+                </div>
+            `;
+            
+            // Hide submit button
+            const submitBtn = document.querySelector('button[onclick="submitQuiz()"]');
+            if (submitBtn) {
+                submitBtn.style.display = 'none';
+            }
+            
+            showToast(`Quiz submitted! Your score: ${score}%`, 'success');
+            speakText(`You scored ${score}% on the quiz. ${score >= 70 ? 'Great job!' : 'Keep practicing!'}`);
+        }
+        
+        // Refresh scores display
+        function refreshScores() {
+            const responseDiv = document.getElementById('scores-response');
+            
+            if (quizScores.length === 0) {
+                responseDiv.innerHTML = `
+                    <div class="response">
+                        <h3>No quiz scores yet</h3>
+                        <p>Take some quizzes to see your scores here!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort scores by timestamp (most recent first)
+            const sortedScores = [...quizScores].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            // Calculate statistics
+            const averageScore = Math.round(quizScores.reduce((sum, score) => sum + score.score, 0) / quizScores.length);
+            const highestScore = Math.max(...quizScores.map(s => s.score));
+            const totalQuizzes = quizScores.length;
+            
+            responseDiv.innerHTML = `
+                <div class="response">
+                    <h3>Your Quiz Performance</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #667eea;">${totalQuizzes}</div>
+                            <div style="font-size: 14px; color: #666;">Total Quizzes</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #28a745;">${averageScore}%</div>
+                            <div style="font-size: 14px; color: #666;">Average Score</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #ffc107;">${highestScore}%</div>
+                            <div style="font-size: 14px; color: #666;">Highest Score</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Recent Quiz Scores:</h4>
+                    <div style="margin: 15px 0;">
+                        ${sortedScores.slice(0, 10).map(score => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 5px; border-left: 4px solid ${score.score >= 70 ? '#28a745' : '#dc3545'};">
+                                <div>
+                                    <strong>${score.topic}</strong>
+                                    <div style="font-size: 12px; color: #666;">${new Date(score.timestamp).toLocaleDateString()}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 18px; font-weight: bold; color: ${score.score >= 70 ? '#28a745' : '#dc3545'};">${score.score}%</div>
+                                    <div style="font-size: 12px; color: #666;">${score.correctAnswers}/${score.totalQuestions}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    ${quizScores.length > 10 ? `<p style="text-align: center; color: #666;">Showing 10 most recent scores out of ${quizScores.length} total</p>` : ''}
+                </div>
+            `;
+        }
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        document.querySelector('[onclick="switchTab(\'tutor\')"]').click();
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        document.querySelector('[onclick="switchTab(\'quiz\')"]').click();
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        document.querySelector('[onclick="switchTab(\'plan\')"]').click();
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        document.querySelector('[onclick="switchTab(\'revision\')"]').click();
+                        break;
+                    case 'v':
+                        e.preventDefault();
+                        toggleVoice();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import OpenAI from "openai";
+import path from "path";
+import { fileURLToPath } from "url";
+
+dotenv.config();
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+/* ========== ROUTES ========== */
+
+// ✅ AI Tutor – Explain topics
+app.post("/tutor", async (req, res) => {
+  const { topic } = req.body;
+  const prompt = `You are StudyBot, an AI tutor for college students.
+  Explain ${topic} in simple terms, include 3–5 bullet points,
+  one real-world example, and one short quiz question at the end.`;
+
+  try {
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+    res.json({ result: response.choices[0].message.content });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ AI Quiz Generator
+app.post("/quiz", async (req, res) => {
+  const { topic } = req.body;
+  const prompt = `Generate 3 multiple-choice questions (A–D) for topic: ${topic}.
+  Return JSON array [{"q":"...","A":"...","B":"...","C":"...","D":"...","ans":"B"}]`;
+
+  try {
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+    const data = response.choices[0].message.content;
+    res.json({ result: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ Study Plan Generator
+app.post("/plan", async (req, res) => {
+  const { subject, days } = req.body;
+  const prompt = `Create a ${days}-day study plan for ${subject}. Return JSON: 
+  [{"day":"Day 1","topics":["..."]},...]`;
+
+  try {
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+    res.json({ result: response.choices[0].message.content });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ Serve frontend
+app.use(express.static(path.join(__dirname, "public")));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`✅ StudyBot server running on port ${PORT}`));

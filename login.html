@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBot - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            color: #333;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .divider {
+            margin: 30px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .guest-btn {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e5e9;
+        }
+        
+        .guest-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+        
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .success {
+            color: #155724;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .features {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+        
+        .features h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .feature-tag {
+            background: #f8f9fa;
+            color: #667eea;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        
+        <h1 class="title">StudyBot</h1>
+        <p class="subtitle">Your AI-Powered Learning Assistant</p>
+        
+        <div id="message"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="username" required placeholder="Enter your username or email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+            
+            <button type="submit" class="btn" id="loginBtn">
+                <span id="loginBtnText">Sign In</span>
+            </button>
+        </form>
+        
+        <div class="divider">
+            <span>OR</span>
+        </div>
+        
+        <button class="btn guest-btn" onclick="continueAsGuest()">
+            Continue as Guest
+        </button>
+        
+        <div class="features">
+            <h3>What you'll get:</h3>
+            <div class="feature-list">
+                <span class="feature-tag"><i class="fas fa-book"></i> AI Tutor</span>
+                <span class="feature-tag"><i class="fas fa-question-circle"></i> Quiz Generator</span>
+                <span class="feature-tag"><i class="fas fa-calendar-alt"></i> Study Plans</span>
+                <span class="feature-tag"><i class="fas fa-redo"></i> Revision System</span>
+                <span class="feature-tag"><i class="fas fa-chart-line"></i> Progress Tracking</span>
+                <span class="feature-tag"><i class="fas fa-volume-up"></i> Voice Learning</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Check if user is already logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            const user = localStorage.getItem('studybot_user');
+            if (user) {
+                redirectToApp();
+            }
+        });
+        
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginBtnText = document.getElementById('loginBtnText');
+            const messageDiv = document.getElementById('message');
+            
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtnText.innerHTML = '<span class="loading"></span>Signing in...';
+            messageDiv.innerHTML = '';
+            
+            try {
+                // Simulate login (in real app, this would be an API call)
+                await simulateLogin(username, password);
+                
+                // Store user data
+                const userData = {
+                    username: username,
+                    loginTime: new Date().toISOString(),
+                    isLoggedIn: true
+                };
+                
+                localStorage.setItem('studybot_user', JSON.stringify(userData));
+                
+                // Show success message
+                showMessage('Login successful! Redirecting...', 'success');
+                
+                // Redirect to app
+                setTimeout(() => {
+                    redirectToApp();
+                }, 1500);
+                
+            } catch (error) {
+                showMessage('Invalid username or password. Please try again.', 'error');
+            } finally {
+                // Reset button state
+                loginBtn.disabled = false;
+                loginBtnText.innerHTML = 'Sign In';
+            }
+        });
+        
+        // Continue as guest
+        function continueAsGuest() {
+            const guestData = {
+                username: 'Guest',
+                loginTime: new Date().toISOString(),
+                isLoggedIn: false,
+                isGuest: true
+            };
+            
+            localStorage.setItem('studybot_user', JSON.stringify(guestData));
+            redirectToApp();
+        }
+        
+        // Simulate login function
+        function simulateLogin(username, password) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    // Simple validation (in real app, this would be server-side)
+                    if (username && password.length >= 4) {
+                        resolve();
+                    } else {
+                        reject(new Error('Invalid credentials'));
+                    }
+                }, 1000);
+            });
+        }
+        
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+        
+        // Redirect to main app
+        function redirectToApp() {
+            window.location.href = '/';
+        }
+        
+        // Add enter key support
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const form = document.getElementById('loginForm');
+                if (form.checkValidity()) {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            }
+        });
+    </script>
+</body>
+</html>
